@@ -1,0 +1,31 @@
+stages:
+    - build
+    - test
+build:
+    stage: build
+    script:
+        - echo "this is building"
+        - hostname
+        - mkdir builds
+        - touch builds/data.txt
+        - echo "true" > builds/data.txt
+    artifacts:
+        paths:
+           - builds/
+test:
+    stage: test
+    script:
+        - echo "this is testing"
+        - hostname
+        - test -f builds/data.txt
+        - grep "true" builds/data.txt
+deploy:
+    stage: deploy
+    image: ruby:latest
+    script:
+        - apt-get update -qy
+        - apt-get install -y ruby-dev
+        - gem install dpl
+        - dpl --provider=heroku --app=quoctuan-ci-cd --api-key=$HEROKU_API_KEY
+    only:
+        - master
